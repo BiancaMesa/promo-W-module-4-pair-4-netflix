@@ -1,27 +1,28 @@
--- MySQL dump 10.13  Distrib 8.0.36, for macos14 (x86_64)
---
--- Host: 127.0.0.1    Database: Netflix
--- ------------------------------------------------------
--- Server version	8.0.36
+CREATE DATABASE Netflix; 
+use Netflix; 
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!50503 SET NAMES utf8 */;
-/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
-/*!40103 SET TIME_ZONE='+00:00' */;
-/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+create table movies (
+	idMovies int auto_increment not null primary key, 
+    title varchar(45) not null, 
+    genre varchar(45) not null, 
+    image varchar(1000) not null, 
+    category varchar(45) not null, 
+    movieYear int
+);
 
-/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
-/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+create table Users (
+	idUsers int auto_increment not null primary key, 
+    users varchar(45) not null, 
+    passwordUsers varchar(45) not null, 
+    nameUsers varchar(45) not null, 
+    email varchar(45) not null,
+    plan_details varchar(45) not null
+);
 
--- Dump completed on 2024-04-03 12:30:20
+create table Actors (
+	idActors int auto_increment not null primary key, 
+    nameActors varchar(45) not null,
+    lastName varchar(45) not null,
+    country varchar(45) not null,
+    birthday date
+);
