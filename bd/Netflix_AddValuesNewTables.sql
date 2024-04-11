@@ -28,3 +28,4 @@ WHERE id_users_has_movies = 2;
 UPDATE users_has_movies
 SET score = 6
 WHERE id_users_has_movies = 3;
+

@@ -6,6 +6,7 @@ const mysql = require('mysql2/promise');
 const server = express();
 server.use(cors());
 server.use(express.json());
+server.set('view engine', 'ejs');
 
 // Nos conectamos a la base de datos
 async function getDBConnection() {
@@ -27,6 +28,19 @@ async function getDBConnection() {
 const serverPort = 6001;
 server.listen(serverPort, () => {
   console.log(`Server listening at http://localhost:${serverPort}`);
+});
+
+
+//Endpoint (motor de plantillas)
+server.get('/movie/:movieId', async (req, res) => {
+  const connection = await getDBConnection();
+  console.log(req.params.movieId);
+  const sqlQuery = "SELECT * FROM movies WHERE idMovies = ?"; 
+  const [movieFound] = await connection.query(sqlQuery, [req.params.movieId]);
+  console.log(movieFound);
+  connection.end();
+  res.render("movie", {movie: movieFound[0]});
+
 });
 
 //Creamos el endpoint
@@ -55,3 +69,7 @@ server.get('/movies', async (req, res) => {
     });
   }
 });
+
+//Servidor de estáticos 
+const pathStatic = "./src/public-react";
+server.use(express.static(pathStatic));
