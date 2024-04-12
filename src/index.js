@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql2/promise');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 // create and config server
 const server = express();
@@ -23,6 +25,16 @@ async function getDBConnection() {
   return connection;
 }
 
+// GENERAR TOKEN
+
+function generateToken(tokenInfo) {
+  const token = jwt.sign(tokenInfo, 'secret_key_lo_que_quiera', {
+    // guardar la clave secreta en una varible de entorno, en mi .env
+    expiresIn: '1h',
+  });
+  return token;
+}
+
 //Establecer el puerto que queremos usar
 // init express aplication
 const serverPort = 6001;
@@ -30,17 +42,15 @@ server.listen(serverPort, () => {
   console.log(`Server listening at http://localhost:${serverPort}`);
 });
 
-
 //Endpoint (motor de plantillas)
 server.get('/movie/:movieId', async (req, res) => {
   const connection = await getDBConnection();
   console.log(req.params.movieId);
-  const sqlQuery = "SELECT * FROM movies WHERE idMovies = ?"; 
+  const sqlQuery = 'SELECT * FROM movies WHERE idMovies = ?';
   const [movieFound] = await connection.query(sqlQuery, [req.params.movieId]);
   console.log(movieFound);
   connection.end();
-  res.render("movie", {movie: movieFound[0]});
-
+  res.render('movie', { movie: movieFound[0] });
 });
 
 //Creamos el endpoint
@@ -70,6 +80,73 @@ server.get('/movies', async (req, res) => {
   }
 });
 
-//Servidor de estáticos 
-const pathStatic = "./src/public-react";
+server.post('/signup', async (req, res) => {
+  const { email, password } = req.body;
+
+  const connection = await getDBConnection();
+  const emailQuery = 'SELECT * FROM users WHERE email = ? ';
+  const [emailResult] = await connection.query(emailQuery, [email]);
+
+  if (emailResult.length === 0) {
+    const passwordHashed = await bcrypt.hash(password, 10);
+    const newUserQuery = 'INSERT INTO users(passwordUsers, email)VALUES(?, ?)';
+
+    const [newUserResult] = await connection.query(newUserQuery, [
+      passwordHashed,
+      email,
+    ]);
+
+    res.status(201).json({
+      success: true,
+      data: newUserResult,
+    });
+  } else {
+    res.status(400).json({
+      success: false,
+      message: 'Email already registered',
+    });
+  }
+});
+
+server.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+  const connection = await getDBConnection();
+  const emailQuery = 'SELECT * FROM users WHERE email = ? ';
+  const [userResult] = await connection.query(emailQuery, [email]);
+
+  const userIsRegister = userResult.length > 0;
+
+  if (userIsRegister) {
+    const isSamePassword = await bcrypt.compare(
+      password,
+      userResult[0].passwordUsers
+    );
+
+    if (isSamePassword) {
+      const infoToken = {
+        id: userResult[0].idUsers,
+        email: userResult[0].email,
+      };
+      const token = generateToken(infoToken);
+
+      res.status(200).json({
+        status: true,
+        token: token,
+      });
+    } else {
+      res.status(400).json({
+        status: false,
+        message: 'Invalid password',
+      });
+    }
+  } else {
+    res.status(400).json({
+      success: false,
+      message: 'Not user found',
+    });
+  }
+});
+
+//Servidor de estáticos
+const pathStatic = './src/public-react';
 server.use(express.static(pathStatic));
