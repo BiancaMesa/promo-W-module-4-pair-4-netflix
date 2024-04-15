@@ -38,8 +38,10 @@ const App = () => {
       genre: allMoviesOptionGenre,
       sort: allMoviesOptionSort,
     };
+    console.log(params);
     apiMovies.getMoviesFromApi(params).then((response) => {
-      setAppMovies(response.movies);
+      setAppMovies(response);
+  
     });
   }, [allMoviesOptionGenre, allMoviesOptionSort]);
 

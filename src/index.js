@@ -147,6 +147,46 @@ server.post('/login', async (req, res) => {
   }
 });
 
+//Funcion middleware para autenticar ? la petición 
+function authorize (req, res, next) {
+  const tokenBearer = req.headers.authorization; //token que me envía frontend 
+  console.log(token);
+
+  if(!tokenBearer){
+  res.status(400).json({
+    success: false, 
+    message: "Not authenticated",
+  });
+  } else { 
+    const token = tokenBearer.split(" " [1]); 
+    //try - catch
+    try {
+      const verifiedToken = jwt.verify(token, "secret_key_lo_que_quiera"); 
+      req.userInfo = verifiedToken; 
+    } catch (error) {
+      res.status(400).json({
+        success: false, 
+        message: "Not authenticated"
+      });
+    }
+    next();
+  }
+ };
+
+//Endpoint para acceder al perfil del usuario
+server.get("/user/profile", authorize, async (req, res) => {
+  //Comprobamos si el usuario está autenticado
+  console.log(req.userInfo);
+  const connection = await getDBConnection(); 
+  const sqlQuery = "SELECT * FROM users WHERE email = ?";
+  const [result] = await connection.query(sqlQuery, [req.userInfo.email]);
+  connection.end(); 
+  res.status(200).json({
+    success: true, 
+    message: result, 
+  });
+});
+
 //Servidor de estáticos
 const pathStatic = './src/public-react';
 server.use(express.static(pathStatic));
