@@ -109,12 +109,14 @@ server.post('/signup', async (req, res) => {
 });
 
 server.post('/login', async (req, res) => {
-  const { email, password } = req.body; // datos que envía frontend
-
-  // buscar el usuario en la base de datos (a través del email, que es único)
+  const { email, password } = req.body;
+  console.log('req.body', req.body);
   const connection = await getDBConnection();
   const emailQuery = 'SELECT * FROM users WHERE email = ? ';
   const [userResult] = await connection.query(emailQuery, [email]);
+  console.log('userResult', userResult);
+
+  connection.end();
 
   const userIsRegister = userResult.length > 0;
 
@@ -125,6 +127,8 @@ server.post('/login', async (req, res) => {
       userResult[0].passwordUsers // está encriptada, la tenemos almacenada en la base de datos, junto con su email
     );
 
+    console.log('isSamePassword', isSamePassword);
+
     if (isSamePassword) {
       const infoToken = {
         id: userResult[0].idUsers,
@@ -133,12 +137,12 @@ server.post('/login', async (req, res) => {
       const token = generateToken(infoToken); // genero el token cuando el email existe y la contraseña es correcta
 
       res.status(200).json({
-        status: true,
+        success: true,
         token: token,
       });
     } else {
       res.status(400).json({
-        status: false,
+        success: false,
         message: 'Invalid password',
       });
     }
@@ -150,48 +154,44 @@ server.post('/login', async (req, res) => {
   }
 });
 
-//Funcion middleware para autenticar ? la petición 
-function authorize (req, res, next) {
-  const tokenBearer = req.headers.authorization; //token que me envía frontend 
+//Funcion middleware para autenticar ? la petición
+function authorize(req, res, next) {
+  const tokenBearer = req.headers.authorization; //token que me envía frontend
   console.log(token);
 
-  if(!tokenBearer){
-  res.status(400).json({
-    success: false, 
-    message: "Not authenticated",
-  });
-  } else { 
-    const token = tokenBearer.split(" " [1]); 
+  if (!tokenBearer) {
+    res.status(400).json({
+      success: false,
+      message: 'Not authenticated',
+    });
+  } else {
+    const token = tokenBearer.split(' '[1]);
     //try - catch
     try {
-      const verifiedToken = jwt.verify(token, "secret_key_lo_que_quiera"); 
-      req.userInfo = verifiedToken; 
+      const verifiedToken = jwt.verify(token, 'secret_key_lo_que_quiera');
+      req.userInfo = verifiedToken;
     } catch (error) {
       res.status(400).json({
-        success: false, 
-        message: "Not authenticated"
+        success: false,
+        message: 'Not authenticated',
       });
     }
     next();
   }
- };
+}
 
 //Endpoint para acceder al perfil del usuario
-server.get("/user/profile", async (req, res) => {
+server.get('/user/profile', authorize, async (req, res) => {
   //Comprobamos si el usuario está autenticado
-  const idUser = req.headers.userId;
-  const connection = await getDBConnection(); 
-  const sqlQuery = "SELECT * FROM users WHERE idUser = ?";
-  const [result] = await connection.query(sqlQuery, [idUser]);
-  //hacer un console log de result para saber qué nos devuelve 
-  // crear una constante que tenga los 3 datos que queremos enviar 
-        //const userInfo = result[0]; (double check)
-  //utilizar brypt para desencriptar la contraseña
-
-  connection.end(); 
+  console.log(req.headers);
+  const connection = await getDBConnection();
+  const sqlQuery =
+    'SELECT passwordUsers, nameUsers, email FROM users WHERE idUsers = ? ';
+  const [result] = await connection.query(sqlQuery, [req.headers]);
+  connection.end();
   res.status(200).json({
-    success: true, 
-    message: result, 
+    success: true,
+    message: result,
   });
 });
 
