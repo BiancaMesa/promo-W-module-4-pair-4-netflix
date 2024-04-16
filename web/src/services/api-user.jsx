@@ -5,10 +5,10 @@ const sendLoginToApi = (data) => {
   // CAMBIA ESTE FETCH PARA QUE APUNTE A UN ENDPOINT DE TU SERVIDOR, PIENSA SI DEBE SER GET O POST, PIENSA QUÉ DATOS DEBES ENVIAR, ETC
   return fetch('http://localhost:6001/login', {
     method: 'POST',
-    body: JSON.stringify(data),
     headers: {
       'Content-Type': 'application/json',
     },
+    body: JSON.stringify(data),
   })
     .then((response) => response.json())
     .then((data) => {
@@ -48,16 +48,15 @@ const getProfileFromApi = (userId) => {
   console.log('Se están pidiendo datos del profile del usuario:', userId);
   // CAMBIA ESTE FETCH PARA QUE APUNTE A UN ENDPOINT DE TU SERVIDOR, PIENSA SI DEBE SER GET O POST, PIENSA QUÉ DATOS DEBES ENVIAR, ETC
   return fetch('http://localhost:6001/user/profile', {
-    method: 'GET', 
+    method: 'GET',
     headers: {
-      userId: userId
-    }
+      userId: userId,
+    },
   })
     .then((response) => response.json())
-    .then(data => {
+    .then((data) => {
       return data;
-});
-
+    });
 };
 
 // user movies
