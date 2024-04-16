@@ -109,17 +109,20 @@ server.post('/signup', async (req, res) => {
 });
 
 server.post('/login', async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password } = req.body; // datos que envía frontend
+
+  // buscar el usuario en la base de datos (a través del email, que es único)
   const connection = await getDBConnection();
   const emailQuery = 'SELECT * FROM users WHERE email = ? ';
   const [userResult] = await connection.query(emailQuery, [email]);
 
   const userIsRegister = userResult.length > 0;
 
+  // si el usuario existe, verifico la contraseña y genero el token
   if (userIsRegister) {
     const isSamePassword = await bcrypt.compare(
-      password,
-      userResult[0].passwordUsers
+      password, // no está encriptada, la acaba de escribir el usuario (nos la mando front)
+      userResult[0].passwordUsers // está encriptada, la tenemos almacenada en la base de datos, junto con su email
     );
 
     if (isSamePassword) {
@@ -127,7 +130,7 @@ server.post('/login', async (req, res) => {
         id: userResult[0].idUsers,
         email: userResult[0].email,
       };
-      const token = generateToken(infoToken);
+      const token = generateToken(infoToken); // genero el token cuando el email existe y la contraseña es correcta
 
       res.status(200).json({
         status: true,
@@ -174,12 +177,17 @@ function authorize (req, res, next) {
  };
 
 //Endpoint para acceder al perfil del usuario
-server.get("/user/profile", authorize, async (req, res) => {
+server.get("/user/profile", async (req, res) => {
   //Comprobamos si el usuario está autenticado
-  console.log(req.userInfo);
+  const idUser = req.headers.userId;
   const connection = await getDBConnection(); 
-  const sqlQuery = "SELECT * FROM users WHERE email = ?";
-  const [result] = await connection.query(sqlQuery, [req.userInfo.email]);
+  const sqlQuery = "SELECT * FROM users WHERE idUser = ?";
+  const [result] = await connection.query(sqlQuery, [idUser]);
+  //hacer un console log de result para saber qué nos devuelve 
+  // crear una constante que tenga los 3 datos que queremos enviar 
+        //const userInfo = result[0]; (double check)
+  //utilizar brypt para desencriptar la contraseña
+
   connection.end(); 
   res.status(200).json({
     success: true, 
