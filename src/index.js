@@ -108,9 +108,54 @@ server.post('/signup', async (req, res) => {
   }
 });
 
+// server.post('/login', async (req, res) => {
+//   const { email, password } = req.body;
+//   console.log('req.body', req.body);
+//   const connection = await getDBConnection();
+//   const emailQuery = 'SELECT * FROM users WHERE email = ? ';
+//   const [userResult] = await connection.query(emailQuery, [email]);
+//   console.log('userResult', userResult);
+
+//   connection.end();
+
+//   const userIsRegister = userResult.length > 0;
+
+//   // si el usuario existe, verifico la contraseña y genero el token
+//   if (userIsRegister) {
+//     const isSamePassword = await bcrypt.compare(
+//       password, // no está encriptada, la acaba de escribir el usuario (nos la mando front)
+//       userResult[0].passwordUsers // está encriptada, la tenemos almacenada en la base de datos, junto con su email
+//     );
+
+//     console.log('isSamePassword', isSamePassword);
+
+//     if (isSamePassword) {
+//       const infoToken = {
+//         id: userResult[0].idUsers,
+//         email: userResult[0].email,
+//       };
+//       const token = generateToken(infoToken); // genero el token cuando el email existe y la contraseña es correcta
+
+//       res.status(200).json({
+//         success: true,
+//         token: token,
+//       });
+//     } else {
+//       res.status(400).json({
+//         success: false,
+//         message: 'Invalid password',
+//       });
+//     }
+//   } else {
+//     res.status(400).json({
+//       success: false,
+//       message: 'Not user found',
+//     });
+//   }
+// });
+
 server.post('/login', async (req, res) => {
   const { email, password } = req.body;
-  console.log('req.body', req.body);
   const connection = await getDBConnection();
   const emailQuery = 'SELECT * FROM users WHERE email = ? ';
   const [userResult] = await connection.query(emailQuery, [email]);
@@ -154,6 +199,7 @@ server.post('/login', async (req, res) => {
   }
 });
 
+
 //Funcion middleware para autenticar ? la petición
 function authorize(req, res, next) {
   const tokenBearer = req.headers.authorization; //token que me envía frontend
@@ -181,19 +227,40 @@ function authorize(req, res, next) {
 }
 
 //Endpoint para acceder al perfil del usuario
-server.get('/user/profile', authorize, async (req, res) => {
+// server.get('/user/profile', authorize, async (req, res) => {
+//   //Comprobamos si el usuario está autenticado
+//   console.log(req.headers);
+//   const connection = await getDBConnection();
+//   const sqlQuery =
+//     'SELECT passwordUsers, nameUsers, email FROM users WHERE idUsers = ? ';
+//   const [result] = await connection.query(sqlQuery, [req.headers]);
+//   connection.end();
+//   res.status(200).json({
+//     success: true,
+//     message: result,
+//   });
+// });
+
+
+//Endpoint para acceder al perfil del usuario
+server.get("/user/profile", async (req, res) => {
   //Comprobamos si el usuario está autenticado
-  console.log(req.headers);
-  const connection = await getDBConnection();
-  const sqlQuery =
-    'SELECT passwordUsers, nameUsers, email FROM users WHERE idUsers = ? ';
-  const [result] = await connection.query(sqlQuery, [req.headers]);
-  connection.end();
+  const idUser = req.headers.userId;
+  const connection = await getDBConnection(); 
+  const sqlQuery = "SELECT * FROM users WHERE idUser = ?";
+  const [result] = await connection.query(sqlQuery, [idUser]);
+  //hacer un console log de result para saber qué nos devuelve 
+  // crear una constante que tenga los 3 datos que queremos enviar 
+        //const userInfo = result[0]; (double check)
+  //utilizar brypt para desencriptar la contraseña
+
+  connection.end(); 
   res.status(200).json({
-    success: true,
-    message: result,
+    success: true, 
+    message: result, 
   });
 });
+
 
 //Servidor de estáticos
 const pathStatic = './src/public-react';
