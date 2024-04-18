@@ -48,7 +48,6 @@ server.get('/movie/:movieId', async (req, res) => {
   console.log(req.params.movieId);
   const sqlQuery = 'SELECT * FROM movies WHERE idMovies = ?';
   const [movieFound] = await connection.query(sqlQuery, [req.params.movieId]);
-  console.log(movieFound);
   connection.end();
   res.render('movie', { movie: movieFound[0] });
 });
@@ -62,7 +61,6 @@ server.get('/movies', async (req, res) => {
 
     // Hacemos la consulta
     const [moviesResult] = await connection.query(sql);
-    console.log(moviesResult);
 
     //Cerrar la conexión con la base de datos
     connection.end();
@@ -154,12 +152,10 @@ server.post('/login', async (req, res) => {
   }
 });
 
-
-
 //Funcion middleware para validar el token en el acceso a las rutas protegidas
 function authorize(req, res, next) {
   const tokenBearer = req.headers.authorization; //token que me envía frontend
-  console.log(token);
+  // console.log(token);
 
   if (!tokenBearer) {
     res.status(400).json({
@@ -167,7 +163,7 @@ function authorize(req, res, next) {
       message: 'Not authenticated',
     });
   } else {
-    const token = tokenBearer.split(' '[1]);
+    const token = tokenBearer.split(' ')[1];
     //try - catch
     try {
       const verifiedToken = jwt.verify(token, 'secret_key_lo_que_quiera');
@@ -182,29 +178,27 @@ function authorize(req, res, next) {
   }
 }
 
-
 //Endpoint para acceder al perfil del usuario
-server.get("/user/profile", authorize, async (req, res) => {
+server.get('/user/profile', async (req, res) => {
   //Comprobamos si el usuario está autenticado (con authorize)
 
-  const idUsers = req.headers.userId;
-  console.log('idUsers:', idUsers);
-  const connection = await getDBConnection(); 
-  const sqlQuery = "SELECT * FROM users WHERE idUsers = ?";
+  const idUsers = req.headers.userid;
+  console.log('req.headers:', req.headers);
+  const connection = await getDBConnection();
+  const sqlQuery = 'SELECT * FROM users WHERE idUsers = ?';
   const [result] = await connection.query(sqlQuery, [idUsers]);
-  console.log("Resultado de profile idUsers:", result);
-  //hacer un console log de result para saber qué nos devuelve 
-  // crear una constante que tenga los 3 datos que queremos enviar 
-      //const userInfo = result[0]; (double check)
+  console.log('Resultado de profile idUsers:', result);
+  //hacer un console log de result para saber qué nos devuelve
+  // crear una constante que tenga los 3 datos que queremos enviar
+  //const userInfo = result[0]; (double check)
   //utilizar brypt para desencriptar la contraseña
 
-  connection.end(); 
+  connection.end();
   res.status(200).json({
-    success: true, 
-    message: result, 
+    success: true,
+    message: result,
   });
 });
-
 
 //Servidor de estáticos
 const pathStatic = './src/public-react';

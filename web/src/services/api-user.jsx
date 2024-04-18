@@ -19,7 +19,7 @@ const sendLoginToApi = (data) => {
 // signup
 
 const sendSingUpToApi = (data) => {
-  console.log('Se están enviando datos al signup:', data);
+  console.log('holi:', data);
   // CAMBIA ESTE FETCH PARA QUE APUNTE A UN ENDPOINT DE TU SERVIDOR, PIENSA SI DEBE SER GET O POST, PIENSA QUÉ DATOS DEBES ENVIAR, ETC
   return fetch('http://localhost:6001/signup', {
     method: 'POST',
@@ -36,18 +36,16 @@ const sendSingUpToApi = (data) => {
 
 // profile
 
-const sendProfileToApi = (userId, data) => {
-  console.log('Se están enviando datos al profile:', userId, data);
+const sendProfileToApi = (userId) => {
+  console.log('Se están enviando datos al profile:', userId);
   // CAMBIA ESTE FETCH PARA QUE APUNTE A UN ENDPOINT DE TU SERVIDOR, PIENSA SI DEBE SER GET O POST, PIENSA QUÉ DATOS DEBES ENVIAR, ETC
-  return fetch(
-    'http://localhost:6001/user/profile', {
-      method: 'POST', 
-      headers: {
-        'Content-Type': 'application/json',
-      }, 
-      body: JSON.stringify(userId, data),
-    }
-  );
+  return fetch('http://localhost:6001/user/profile', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(userId),
+  });
 };
 
 const getProfileFromApi = (userId) => {
@@ -56,7 +54,7 @@ const getProfileFromApi = (userId) => {
   return fetch('http://localhost:6001/user/profile', {
     method: 'GET',
     headers: {
-      userId: userId,
+      userid: userId,
     },
   })
     .then((response) => response.json())

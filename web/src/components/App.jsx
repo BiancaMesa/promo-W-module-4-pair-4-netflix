@@ -33,6 +33,9 @@ const App = () => {
   Se ejecuta cuando allMoviesOptionGenre o allMoviesOptionSort cambian de valor.
   Como queremos que el back devuelva las películas filtradas por género y ordenadas por nombre estamos pasando a getMoviesFromApi estos dos valores.
   */
+
+  console.log('APP');
+
   useEffect(() => {
     const params = {
       genre: allMoviesOptionGenre,
@@ -41,7 +44,6 @@ const App = () => {
     console.log(params);
     apiMovies.getMoviesFromApi(params).then((response) => {
       setAppMovies(response);
-  
     });
   }, [allMoviesOptionGenre, allMoviesOptionSort]);
 
@@ -100,6 +102,7 @@ const App = () => {
   Como queremos que el back devuelva el id de la usuaria sendSingUpToApi recibe el email y la contraseña que ella haya escrito.
   */
   const sendSingUpToApi = (data) => {
+    console.log('>>> HOLA');
     // Limpiamos el error antes de enviar los datos al API
     setSignUpErrorMessage('');
     // Enviamos los datos al API
@@ -121,8 +124,8 @@ const App = () => {
   Le tenemos que indicar qué datos (nombre, email y contraseña) queremos enviar al API.
   También le tenemos que indicar cuál es la usuaria actual, por ello enviamos el userId
   */
-  const sendProfileToApi = (userId, data) => {
-    apiUser.sendProfileToApi(userId, data).then(() => {
+  const sendProfileToApi = (userId) => {
+    apiUser.sendProfileToApi(userId).then(() => {
       // Después de enviar los datos al servidor los volvemos a pedir al servidor para tenerlos actualizados
       apiUser.getProfileFromApi(userId).then((response) => {
         setUserName(response.name);
